@@ -7,6 +7,8 @@
     <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="login-body">
@@ -90,12 +92,32 @@
                                 picture: profile.picture
                             }));
 
-                            // Save to a mock 'Database' in localStorage
-                            let usersDB = JSON.parse(localStorage.getItem('taxiBotUsersDB') || '[]');
-                            if (!usersDB.find(u => u.email === profile.email)) {
-                                usersDB.push({ ...profile, joinedAt: new Date().toISOString() });
-                                localStorage.setItem('taxiBotUsersDB', JSON.stringify(usersDB));
-                                console.log("New user saved to Database!");
+                            // ==========================================
+                            // SUPABASE DATABASE CONNECTION
+                            // ==========================================
+                            const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
+                            const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
+                            
+                            try {
+                                if (SUPABASE_URL.includes('YOUR_')) {
+                                    console.warn("Supabase keys not configured. Falling back to local storage only.");
+                                } else {
+                                    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                                    
+                                    // Upsert user into database (insert if new, update if exists)
+                                    const { data, error } = await supabaseClient
+                                        .from('users')
+                                        .upsert({
+                                            email: profile.email,
+                                            name: profile.name,
+                                            picture: profile.picture
+                                        }, { onConflict: 'email' });
+                                        
+                                    if (error) throw error;
+                                    console.log("Successfully saved user to Supabase Database!");
+                                }
+                            } catch (dbError) {
+                                console.error("Database Save Error:", dbError);
                             }
                             
                             window.location.href = 'chatbot.html';
