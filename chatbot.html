@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaxiBot — AI Fare Estimator</title>
+    <meta name="description" content="TaxiBot: Compare Uber, Ola & Rapido taxi fares instantly with AI. Get real-time route estimates for any trip in India.">
+    <!-- Google Fonts: Plus Jakarta Sans + Manrope -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Maps API -->
+    <script>
+        ((g) => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })({
+            key: "AIzaSyAomSm9UgKL-X1hKfbKl_umHMvWQaP3yCk",
+            v: "weekly",
+        });
+    </script>
+</head>
+
+<body>
+
+    <!-- Auth Guard: redirect to login if not authenticated -->
+    <script>
+        if (!localStorage.getItem('taxibot_user')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <!-- ============================
+         SIDEBAR BACKDROP (mobile)
+    ============================= -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
+
+    <!-- ============================
+         HISTORY DRAWER (hamburger)
+    ============================= -->
+    <aside class="history-drawer" id="history-drawer">
+        <div class="drawer-header">
+            <span class="drawer-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                Chat History
+            </span>
+            <button id="close-sidebar-btn" class="icon-btn" title="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="drawer-new-chat">
+            <button id="new-chat-btn" class="new-chat-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                New Estimate
+            </button>
+        </div>
+        <div class="history-list" id="history-list">
+            <!-- History items inserted via JS -->
+        </div>
+    </aside>
+
+    <!-- ============================
+         MAIN APP SHELL
+    ============================= -->
+    <div class="app-shell">
+
+        <!-- LEFT NAV PANEL -->
+        <nav class="left-nav" id="left-nav">
+            <div class="left-nav-brand">
+                <img src="logo.png" alt="TaxiBot Logo" class="brand-logo-img">
+                <div class="brand-text">
+                    <span class="brand-name">TaxiBot</span>
+                    <span class="brand-sub">AI Concierge</span>
+                </div>
+            </div>
+
+            <ul class="nav-links">
+                <li class="nav-item active" id="nav-concierge" title="Concierge">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span>Concierge</span>
+                </li>
+                <li class="nav-item" id="nav-history" title="History">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>History</span>
+                </li>
+                <li class="nav-item" id="nav-routes" title="Saved Routes">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"></path></svg>
+                    <span>Saved Routes</span>
+                </li>
+                <li class="nav-item" id="nav-info" title="About">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span>About</span>
+                </li>
+            </ul>
+
+            <div class="nav-bottom">
+                <button class="new-request-btn" id="new-request-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Request
+                </button>
+            </div>
+        </nav>
+
+        <!-- CENTER: CHAT PANEL -->
+        <div class="chat-panel" id="chat-panel">
+
+            <!-- Chat Top Bar -->
+            <header class="chat-topbar">
+                <div class="topbar-left">
+                    <button id="menu-btn" class="icon-btn hamburger-btn" title="Chat History">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="topbar-title">
+                        <img src="logo.png" alt="TaxiBot Logo" class="brand-logo-img">
+                        <div>
+                            <h1 class="topbar-name">TaxiBot</h1>
+                            <p class="topbar-sub">Your AI Fare Estimator</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <div class="status-dot"></div>
+                    <span class="status-text">AI Online</span>
+                </div>
+            </header>
+
+            <!-- Messages -->
+            <main class="chat-wrapper">
+                <div id="chat-container" class="chat-container">
+                    <!-- Messages rendered by JS -->
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <div class="input-card">
+                        <form id="chat-form">
+                            <div class="input-row">
+                                <button type="button" id="locate-btn" class="locate-btn" title="Use my current location">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="19" height="19">
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                        <path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path>
+                                        <circle cx="12" cy="12" r="8" stroke-opacity="0.35"></circle>
+                                    </svg>
+                                </button>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="message-input" placeholder="Type a location or message…" autocomplete="off" />
+                                    <div id="autocomplete-list" class="autocomplete-list hidden"></div>
+                                </div>
+                                <button type="submit" id="send-button" aria-label="Send message">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="19" height="19">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                </button>
+                            </div>
+                        </form>
+                        <p class="input-hint">Powered by Gemini AI · Routes via OpenStreetMap</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- RIGHT: MAP PANEL -->
+        <div class="map-panel" id="map-panel">
+            <div id="map"></div>
+
+            <!-- ── LIVE ESTIMATE CARD (top-right of map) ── -->
+            <div id="live-estimate-card" class="live-estimate-card hidden">
+                <div class="est-header">
+                    <span class="est-label">LIVE ESTIMATE</span>
+                    <span class="est-badge" id="est-badge">ECONOMY</span>
+                </div>
+                <div class="est-price" id="est-price">₹0</div>
+                <div class="est-route">
+                    <div class="est-route-row">
+                        <span class="est-dot est-dot-pickup"></span>
+                        <span class="est-route-text" id="est-pickup-text">Pickup</span>
+                    </div>
+                    <div class="est-route-line"></div>
+                    <div class="est-route-row">
+                        <span class="est-dot est-dot-drop"></span>
+                        <span class="est-route-text" id="est-drop-text">Drop</span>
+                    </div>
+                </div>
+                <button class="est-confirm-btn" id="est-confirm-btn">Confirm Ride Now</button>
+            </div>
+
+            <!-- ── MAP LOADING OVERLAY ── -->
+            <div id="map-overlay" class="map-overlay hidden">
+                <div class="overlay-loader-ring">
+                    <div class="loader-ring-track"></div>
+                    <div class="loader-ring-fill"></div>
+                    <span class="loader-emoji">🗺️</span>
+                </div>
+                <div class="overlay-text-block">
+                    <h3 class="overlay-title">Map Loading...</h3>
+                    <p class="overlay-sub" id="overlay-sub-text">Synchronizing GPS data</p>
+                </div>
+            </div>
+
+            <!-- ── CUSTOM MAP CONTROLS ── -->
+            <div class="map-controls">
+                <button class="map-ctrl-btn" id="map-zoom-in" title="Zoom in">+</button>
+                <button class="map-ctrl-btn" id="map-zoom-out" title="Zoom out">−</button>
+            </div>
+            <button class="map-compass-btn" id="map-compass" title="My location">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M12 2L8.5 8.5 2 12l6.5 3.5L12 22l3.5-6.5L22 12l-6.5-3.5z"/>
+                </svg>
+            </button>
+        </div>
+
+    </div><!-- /.app-shell -->
+
+    <!-- ============================
+         ABOUT MODAL
+    ============================= -->
+    <div id="about-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <button id="close-about-btn" class="modal-close-btn">&times;</button>
+            <div class="modal-header">
+                <h2>About TaxiBot</h2>
+                <img src="logo.png" alt="TaxiBot Logo" class="brand-logo-img">
+            </div>
+            <div class="modal-body">
+                <p><strong>TaxiBot AI Concierge</strong> is your ultimate fare estimation companion for trips across India.</p>
+                <p>Powered by <strong>Google Gemini Flash</strong> for intelligent natural language processing, and <strong>OpenStreetMap</strong> routing, we provide you with the most accurate fare comparisons across Uber, Ola, and Rapido.</p>
+                <p class="modal-version">Version 1.1.0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="script.js"></script>
+</body>
+
+</html>
