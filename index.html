@@ -68,30 +68,29 @@
 
         // Toggle Sign In vs Sign Up mode
         let isSignUpMode = false;
-        const toggleModeBtn = document.getElementById('toggle-auth-mode');
         const authTitle = document.querySelector('.login-header p');
         const submitBtn = document.getElementById('auth-submit-btn');
         const promptText = document.getElementById('toggle-auth-prompt');
         const forgotPw = document.getElementById('forgot-pw-container');
         const errorMsg = document.getElementById('auth-error');
 
-        toggleModeBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            isSignUpMode = !isSignUpMode;
-            errorMsg.style.display = 'none';
-            if (isSignUpMode) {
-                authTitle.textContent = 'Create a new AI Concierge account';
-                submitBtn.textContent = 'Sign Up';
-                promptText.innerHTML = 'Already have an account? <a href="#" id="toggle-auth-mode">Sign in</a>';
-                forgotPw.style.display = 'none';
-            } else {
-                authTitle.textContent = 'Sign in to your AI Concierge';
-                submitBtn.textContent = 'Sign In';
-                promptText.innerHTML = 'New to TaxiBot? <a href="#" id="toggle-auth-mode">Create an account</a>';
-                forgotPw.style.display = 'flex';
+        promptText.addEventListener('click', (e) => {
+            if(e.target.tagName === 'A') {
+                e.preventDefault();
+                isSignUpMode = !isSignUpMode;
+                errorMsg.style.display = 'none';
+                if (isSignUpMode) {
+                    authTitle.textContent = 'Create a new AI Concierge account';
+                    submitBtn.textContent = 'Sign Up';
+                    promptText.innerHTML = 'Already have an account? <a href="#" id="toggle-auth-mode">Sign in</a>';
+                    forgotPw.style.display = 'none';
+                } else {
+                    authTitle.textContent = 'Sign in to your AI Concierge';
+                    submitBtn.textContent = 'Sign In';
+                    promptText.innerHTML = 'New to TaxiBot? <a href="#" id="toggle-auth-mode">Create an account</a>';
+                    forgotPw.style.display = 'flex';
+                }
             }
-            // re-bind the toggle since innerHTML overwrote it
-            document.getElementById('toggle-auth-mode').addEventListener('click', arguments.callee);
         });
 
         // Email/Password auth powered by Supabase
