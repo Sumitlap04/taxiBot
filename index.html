@@ -31,11 +31,12 @@
                     <input type="password" id="password" placeholder="••••••••" required>
                 </div>
                 
-                <div class="forgot-password">
+                <div class="forgot-password" id="forgot-pw-container">
                     <a href="#">Forgot Password?</a>
                 </div>
 
-                <button type="submit" class="btn-primary login-btn">Sign In</button>
+                <button type="submit" class="btn-primary login-btn" id="auth-submit-btn">Sign In</button>
+                <p id="auth-error" style="color: #ff4d4d; font-size: 12px; margin-top: 10px; display: none;"></p>
                 
                 <div class="divider">
                     <span>or continue with</span>
@@ -48,31 +49,90 @@
             </form>
             
             <div class="signup-prompt">
-                <p>New to TaxiBot? <a href="#">Create an account</a></p>
+                <p id="toggle-auth-prompt">New to TaxiBot? <a href="#" id="toggle-auth-mode">Create an account</a></p>
             </div>
             
         </div>
     </div>
     
     <script>
+        // Use Supabase keys
+        const SUPABASE_URL = 'https://jcruzbcpwkfnfftnvupq.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_kFkr7CRsHUK8I7SrK1J77A_9_kqEi1M';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         // If already logged in, skip to chatbot
         if (localStorage.getItem('taxibot_user')) {
             window.location.href = 'chatbot.html';
         }
 
-        // Email/Password auth
-        document.getElementById('login-form').addEventListener('submit', (e) => {
+        // Toggle Sign In vs Sign Up mode
+        let isSignUpMode = false;
+        const toggleModeBtn = document.getElementById('toggle-auth-mode');
+        const authTitle = document.querySelector('.login-header p');
+        const submitBtn = document.getElementById('auth-submit-btn');
+        const promptText = document.getElementById('toggle-auth-prompt');
+        const forgotPw = document.getElementById('forgot-pw-container');
+        const errorMsg = document.getElementById('auth-error');
+
+        toggleModeBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            localStorage.setItem('taxibot_user', email || 'User');
-            window.location.href = 'chatbot.html';
+            isSignUpMode = !isSignUpMode;
+            errorMsg.style.display = 'none';
+            if (isSignUpMode) {
+                authTitle.textContent = 'Create a new AI Concierge account';
+                submitBtn.textContent = 'Sign Up';
+                promptText.innerHTML = 'Already have an account? <a href="#" id="toggle-auth-mode">Sign in</a>';
+                forgotPw.style.display = 'none';
+            } else {
+                authTitle.textContent = 'Sign in to your AI Concierge';
+                submitBtn.textContent = 'Sign In';
+                promptText.innerHTML = 'New to TaxiBot? <a href="#" id="toggle-auth-mode">Create an account</a>';
+                forgotPw.style.display = 'flex';
+            }
+            // re-bind the toggle since innerHTML overwrote it
+            document.getElementById('toggle-auth-mode').addEventListener('click', arguments.callee);
         });
 
-        // Google Identity Services - OAuth 2.0 Auth Flow for Custom UI Button
+        // Email/Password auth powered by Supabase
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Please wait...';
+            errorMsg.style.display = 'none';
+
+            try {
+                if (isSignUpMode) {
+                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                    if (error) throw error;
+                    if (data.user && data.user.identities && data.user.identities.length === 0) {
+                        throw new Error("Account with this email already exists.");
+                    }
+                    alert("Account created! Please check your email for a confirmation link (if enabled), or try signing in.");
+                    document.getElementById('toggle-auth-mode').click(); // switch back to login
+                } else {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    
+                    // Success!
+                    localStorage.setItem('taxibot_user', email);
+                    localStorage.setItem('taxibot_profile', JSON.stringify({ email: email, name: email.split('@')[0], picture: null }));
+                    window.location.href = 'chatbot.html';
+                }
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = isSignUpMode ? 'Sign Up' : 'Sign In';
+            }
+        });
+
+        // Google Identity Services - Keep existing Google Flow custom logic
         let googleClient;
         window.onload = function () {
-            // NOTE: Replace 'YOUR_GOOGLE_CLIENT_ID' with your actual Client ID 
-            // from the Google Cloud Console (APIs & Services -> Credentials)
             googleClient = google.accounts.oauth2.initTokenClient({
                 client_id: '371102088202-tc3ci0q7kff7h0onh2lglbt1a46q73n2.apps.googleusercontent.com',
                 scope: 'profile email',
@@ -84,7 +144,6 @@
                             });
                             const profile = await res.json();
                             
-                            // Save active session
                             localStorage.setItem('taxibot_user', profile.email);
                             localStorage.setItem('taxibot_profile', JSON.stringify({
                                 name: profile.name,
@@ -92,37 +151,16 @@
                                 picture: profile.picture
                             }));
 
-                            // ==========================================
-                            // SUPABASE DATABASE CONNECTION
-                            // ==========================================
-                            const SUPABASE_URL = 'https://jcruzbcpwkfnfftnvupq.supabase.co';
-                            const SUPABASE_ANON_KEY = 'sb_publishable_kFkr7CRsHUK8I7SrK1J77A_9_kqEi1M';
-                            
-                            try {
-                                if (SUPABASE_URL.includes('YOUR_')) {
-                                    console.warn("Supabase keys not configured. Falling back to local storage only.");
-                                } else {
-                                    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                                    
-                                    // Upsert user into database (insert if new, update if exists)
-                                    const { data, error } = await supabaseClient
-                                        .from('users')
-                                        .upsert({
-                                            email: profile.email,
-                                            name: profile.name,
-                                            picture: profile.picture
-                                        }, { onConflict: 'email' });
-                                        
-                                    if (error) throw error;
-                                    console.log("Successfully saved user to Supabase Database!");
-                                }
-                            } catch (dbError) {
-                                console.error("Database Save Error:", dbError);
-                            }
+                            // Upsert into Supabase `users` table so we track Google users too
+                            await supabaseClient.from('users').upsert({
+                                email: profile.email,
+                                name: profile.name,
+                                picture: profile.picture
+                            }, { onConflict: 'email' });
                             
                             window.location.href = 'chatbot.html';
                         } catch (err) {
-                            console.error("Failed to fetch Google profile:", err);
+                            console.error(err);
                             localStorage.setItem('taxibot_user', "Google User");
                             window.location.href = 'chatbot.html';
                         }
@@ -131,13 +169,8 @@
             });
         };
 
-        // Wire the custom styled Google button
         document.querySelector('.google-btn').addEventListener('click', () => {
-            if (googleClient) {
-                googleClient.requestAccessToken();
-            } else {
-                console.error("Google Client not initialized yet.");
-            }
+            if (googleClient) googleClient.requestAccessToken();
         });
     </script>
 </body>
