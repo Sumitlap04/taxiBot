@@ -360,6 +360,76 @@ body::before {
 }
 .new-request-btn:active { transform: scale(0.97); }
 
+/* ── USER PROFILE & LOGOUT ──────────────────────────────── */
+.user-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.user-avatar {
+    width: 32px; height: 32px;
+    background: var(--primary);
+    color: #1a1200;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.user-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* allows text truncation */
+}
+
+.user-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-email {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.logout-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 60, 172, 0.15);
+    color: var(--pink);
+}
+
 /* ── CHAT PANEL — vivid purple/violet ───────────────────── */
 .chat-panel {
     flex: 0 0 460px;

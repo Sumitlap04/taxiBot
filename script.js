@@ -79,6 +79,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    // ---- User Profile & Logout Logic ----
+    const userEmail = localStorage.getItem('taxibot_user') || 'user@example.com';
+    const userNameElement = document.getElementById('user-display-name');
+    const userEmailElement = document.getElementById('user-display-email');
+    const userAvatarElement = document.getElementById('user-avatar');
+    
+    // Set up name/avatar based on auth type
+    if (userEmail === 'Google User') {
+        if (userNameElement) userNameElement.textContent = 'Google User';
+        if (userEmailElement) userEmailElement.textContent = 'Verified via Google';
+        if (userAvatarElement) userAvatarElement.textContent = 'G';
+    } else {
+        const emailPrefix = userEmail.split('@')[0];
+        if (userNameElement) userNameElement.textContent = emailPrefix;
+        if (userEmailElement) userEmailElement.textContent = userEmail;
+        if (userAvatarElement) userAvatarElement.textContent = emailPrefix.charAt(0).toUpperCase();
+    }
+
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('taxibot_user');
+            window.location.href = 'index.html';
+        });
+    }
 
 // ============================================================
 // FREE ROUTING ENGINE — No Google API Key Required!
