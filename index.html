@@ -74,11 +74,36 @@
             googleClient = google.accounts.oauth2.initTokenClient({
                 client_id: '371102088202-tc3ci0q7kff7h0onh2lglbt1a46q73n2.apps.googleusercontent.com',
                 scope: 'profile email',
-                callback: (tokenResponse) => {
+                callback: async (tokenResponse) => {
                     if (tokenResponse && tokenResponse.access_token) {
-                        console.log("Successfully logged in with Google!");
-                        localStorage.setItem('taxibot_user', "Google User");
-                        window.location.href = 'chatbot.html';
+                        try {
+                            const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                                headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                            });
+                            const profile = await res.json();
+                            
+                            // Save active session
+                            localStorage.setItem('taxibot_user', profile.email);
+                            localStorage.setItem('taxibot_profile', JSON.stringify({
+                                name: profile.name,
+                                email: profile.email,
+                                picture: profile.picture
+                            }));
+
+                            // Save to a mock 'Database' in localStorage
+                            let usersDB = JSON.parse(localStorage.getItem('taxiBotUsersDB') || '[]');
+                            if (!usersDB.find(u => u.email === profile.email)) {
+                                usersDB.push({ ...profile, joinedAt: new Date().toISOString() });
+                                localStorage.setItem('taxiBotUsersDB', JSON.stringify(usersDB));
+                                console.log("New user saved to Database!");
+                            }
+                            
+                            window.location.href = 'chatbot.html';
+                        } catch (err) {
+                            console.error("Failed to fetch Google profile:", err);
+                            localStorage.setItem('taxibot_user', "Google User");
+                            window.location.href = 'chatbot.html';
+                        }
                     }
                 },
             });

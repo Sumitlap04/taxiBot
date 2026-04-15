@@ -82,16 +82,25 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
     // ---- User Profile & Logout Logic ----
     const userEmail = localStorage.getItem('taxibot_user') || 'user@example.com';
+    let userProfile = null;
+    try {
+        userProfile = JSON.parse(localStorage.getItem('taxibot_profile'));
+    } catch(e) {}
+
     const userNameElement = document.getElementById('user-display-name');
     const userEmailElement = document.getElementById('user-display-email');
     const userAvatarElement = document.getElementById('user-avatar');
     
-    // Set up name/avatar based on auth type
-    if (userEmail === 'Google User') {
-        if (userNameElement) userNameElement.textContent = 'Google User';
-        if (userEmailElement) userEmailElement.textContent = 'Verified via Google';
-        if (userAvatarElement) userAvatarElement.textContent = 'G';
+    if (userProfile && userProfile.picture) {
+        // We have a real Google profile!
+        if (userNameElement) userNameElement.textContent = userProfile.name || userProfile.email;
+        if (userEmailElement) userEmailElement.textContent = userProfile.email;
+        if (userAvatarElement) {
+            userAvatarElement.innerHTML = `<img src="${userProfile.picture}" alt="DP" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+            userAvatarElement.style.background = 'transparent';
+        }
     } else {
+        // Fallback for manual email login or old cached users
         const emailPrefix = userEmail.split('@')[0];
         if (userNameElement) userNameElement.textContent = emailPrefix;
         if (userEmailElement) userEmailElement.textContent = userEmail;
@@ -102,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
             localStorage.removeItem('taxibot_user');
+            localStorage.removeItem('taxibot_profile');
             window.location.href = 'index.html';
         });
     }
