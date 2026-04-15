@@ -1402,3 +1402,200 @@ body::before {
 .signup-prompt a:hover {
     color: #fff;
 }
+
+/* =========================================
+   MOBILE RESPONSIVE — LOGIN PAGE
+========================================== */
+@media (max-width: 480px) {
+    .login-body {
+        height: 100vh;
+        height: 100dvh; /* dynamic viewport height for mobile browsers */
+        overflow-y: auto;
+        align-items: flex-start;
+        padding-top: 40px;
+        padding-bottom: 30px;
+    }
+
+    .login-container {
+        max-width: 100%;
+        padding: 0 16px;
+    }
+
+    .login-glass-card {
+        padding: 28px 20px;
+        border-radius: 24px;
+    }
+
+    .login-header {
+        margin-bottom: 24px;
+    }
+
+    .login-header h1 {
+        font-size: 1.7rem;
+    }
+
+    .login-header p {
+        font-size: 0.85rem;
+    }
+
+    .login-logo {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
+    }
+
+    .login-form .input-group {
+        margin-bottom: 14px;
+    }
+
+    .login-form .input-group input {
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+
+    .login-form .input-group label {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+
+    .login-btn {
+        padding: 13px;
+        font-size: 0.95rem;
+    }
+
+    .divider {
+        margin: 18px 0;
+        font-size: 0.8rem;
+    }
+
+    .google-btn {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+
+    .signup-prompt {
+        margin-top: 20px;
+        font-size: 0.82rem;
+    }
+
+    .forgot-password {
+        margin-bottom: 18px;
+    }
+}
+
+/* =========================================
+   MOBILE RESPONSIVE — CHATBOT PAGE (enhanced)
+========================================== */
+@media (max-width: 900px) {
+    /* User profile in sidebar — make it fit better */
+    .user-profile-card {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .user-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+
+    .user-name {
+        font-size: 0.72rem;
+    }
+
+    .user-email {
+        font-size: 0.6rem;
+    }
+
+    /* Live estimate card on mobile */
+    .live-estimate-card {
+        width: calc(100% - 24px);
+        right: 12px;
+        top: auto;
+        bottom: 12px;
+        max-width: 320px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Chatbot panel tight spacing */
+    .chat-topbar { padding: 10px 12px; }
+    .chat-container { padding: 10px 10px; }
+    .input-area { padding: 8px 10px 10px; }
+
+    /* Message bubbles */
+    .message {
+        max-width: 92% !important;
+    }
+
+    .message-content {
+        font-size: 0.85rem;
+        padding: 10px 12px;
+    }
+
+    /* Quick reply chips */
+    .quick-replies {
+        gap: 6px;
+        padding: 0 10px;
+    }
+
+    .quick-reply-btn {
+        padding: 7px 12px;
+        font-size: 0.78rem;
+    }
+
+    /* About modal */
+    .modal-content {
+        width: 95%;
+        padding: 22px 18px;
+        border-radius: 16px;
+    }
+
+    .modal-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .modal-body p {
+        font-size: 0.85rem;
+    }
+
+    /* History drawer */
+    .history-drawer {
+        width: 85vw;
+        max-width: 300px;
+    }
+}
+
+/* Extra small phones (iPhone SE, Galaxy Fold etc.) */
+@media (max-width: 360px) {
+    .login-glass-card {
+        padding: 22px 16px;
+        border-radius: 20px;
+    }
+
+    .login-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .login-form .input-group input {
+        padding: 10px 14px;
+        font-size: 0.88rem;
+    }
+
+    .login-btn {
+        padding: 11px;
+        font-size: 0.9rem;
+    }
+
+    .google-btn {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Fix iOS Safari 100vh issue and ensure touch targets are large enough */
+@supports (-webkit-touch-callout: none) {
+    .login-body {
+        min-height: -webkit-fill-available;
+    }
+}
