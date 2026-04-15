@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html';
         });
     }
+});
 
 // ============================================================
 // FREE ROUTING ENGINE — No Google API Key Required!
