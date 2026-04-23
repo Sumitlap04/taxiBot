@@ -1097,17 +1097,95 @@ body::before {
     .app-shell {
         width: 100%;
         height: 100vh;
+        height: 100dvh;
         max-width: none;
         max-height: none;
         border-radius: 0;
+        border: none;
+        box-shadow: none;
     }
+    body { overflow: auto; }
     body::before { display: none; }
+
+    /* Safe area insets for notched phones */
+    .chat-topbar {
+        padding-top: max(14px, env(safe-area-inset-top));
+        padding-left: max(14px, env(safe-area-inset-left));
+        padding-right: max(14px, env(safe-area-inset-right));
+    }
+    .input-area {
+        padding-bottom: max(14px, env(safe-area-inset-bottom));
+        padding-left: max(14px, env(safe-area-inset-left));
+        padding-right: max(14px, env(safe-area-inset-right));
+    }
+
+    /* Touch-friendly minimum sizes */
+    .icon-btn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+    #send-button { width: 48px; height: 48px; min-width: 48px; }
+    .locate-btn { width: 48px; height: 48px; min-width: 48px; }
+
+    /* Prevent iOS zoom on input focus — must be ≥16px */
+    #message-input { font-size: 16px; }
+
+    /* Smooth chat scroll */
+    .chat-container {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+    }
+
+    /* Full-width chat wrapper */
+    .chat-wrapper {
+        flex: 1;
+        min-height: 0;
+    }
 }
 
 @media (max-width: 480px) {
-    .chat-topbar { padding: 12px 14px; }
-    .chat-container { padding: 14px 12px; }
-    .input-area { padding: 10px 12px 12px; }
+    .chat-topbar { padding: 10px 12px; padding-top: max(10px, env(safe-area-inset-top)); }
+    .chat-container { padding: 12px 10px; }
+    .input-area { padding: 8px 10px; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+
+    /* Larger touch targets for small screens */
+    .hamburger-btn { width: 44px; height: 44px; }
+    .topbar-name { font-size: 0.95rem; }
+    .topbar-sub { font-size: 0.65rem; }
+    .brand-logo-img { width: 30px; height: 30px; }
+
+    /* Bubble sizing */
+    .message { max-width: 92% !important; }
+    .bubble { padding: 10px 14px; font-size: 0.88rem; line-height: 1.6; }
+
+    /* Quick replies scroll horizontally */
+    .quick-replies {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        padding: 4px 10px 8px;
+        gap: 6px;
+        scrollbar-width: none;
+    }
+    .quick-replies::-webkit-scrollbar { display: none; }
+    .quick-reply-btn {
+        scroll-snap-align: start;
+        flex-shrink: 0;
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        min-height: 36px;
+    }
+
+    /* Comparison card mobile fit */
+    .comparison-card { min-width: unset; width: 100%; border-radius: 14px; }
+    .comp-brand { font-size: 0.82rem; gap: 8px; }
+    .brand-icon { width: 24px; height: 24px; font-size: 0.65rem; }
+    .comp-price { font-size: 0.95rem; }
+    .comp-row { padding: 10px 12px; }
+    .comp-header { padding: 8px 12px; font-size: 0.72rem; }
+
+    /* Input row */
+    .input-card { padding: 8px 10px 6px; border-radius: 14px; }
+    .input-row { gap: 6px; }
+    .input-hint { font-size: 0.58rem; margin-top: 5px; }
 }
 
 /* ── GOOGLE MAPS DARK STYLING ───────────────────────────── */
@@ -1403,111 +1481,19 @@ body::before {
     color: #fff;
 }
 
-/* =========================================
-   MOBILE RESPONSIVE — LOGIN PAGE
-========================================== */
-@media (max-width: 480px) {
-    .login-body {
-        height: 100vh;
-        height: 100dvh; /* dynamic viewport height for mobile browsers */
-        overflow-y: auto;
-        align-items: flex-start;
-        padding-top: 40px;
-        padding-bottom: 30px;
-    }
 
-    .login-container {
-        max-width: 100%;
-        padding: 0 16px;
-    }
-
-    .login-glass-card {
-        padding: 28px 20px;
-        border-radius: 24px;
-    }
-
-    .login-header {
-        margin-bottom: 24px;
-    }
-
-    .login-header h1 {
-        font-size: 1.7rem;
-    }
-
-    .login-header p {
-        font-size: 0.85rem;
-    }
-
-    .login-logo {
-        width: 50px;
-        height: 50px;
-        margin-bottom: 10px;
-    }
-
-    .login-form .input-group {
-        margin-bottom: 14px;
-    }
-
-    .login-form .input-group input {
-        padding: 12px 16px;
-        font-size: 0.95rem;
-    }
-
-    .login-form .input-group label {
-        font-size: 0.8rem;
-        margin-bottom: 6px;
-    }
-
-    .login-btn {
-        padding: 13px;
-        font-size: 0.95rem;
-    }
-
-    .divider {
-        margin: 18px 0;
-        font-size: 0.8rem;
-    }
-
-    .google-btn {
-        padding: 12px;
-        font-size: 0.9rem;
-    }
-
-    .signup-prompt {
-        margin-top: 20px;
-        font-size: 0.82rem;
-    }
-
-    .forgot-password {
-        margin-bottom: 18px;
-    }
-}
 
 /* =========================================
    MOBILE RESPONSIVE — CHATBOT PAGE (enhanced)
 ========================================== */
 @media (max-width: 900px) {
-    /* User profile in sidebar — make it fit better */
-    .user-profile-card {
-        padding: 8px;
-        gap: 8px;
-    }
+    /* User profile in sidebar */
+    .user-profile-card { padding: 8px; gap: 8px; }
+    .user-avatar { width: 28px; height: 28px; font-size: 0.75rem; }
+    .user-name { font-size: 0.72rem; }
+    .user-email { font-size: 0.6rem; }
 
-    .user-avatar {
-        width: 28px;
-        height: 28px;
-        font-size: 0.75rem;
-    }
-
-    .user-name {
-        font-size: 0.72rem;
-    }
-
-    .user-email {
-        font-size: 0.6rem;
-    }
-
-    /* Live estimate card on mobile */
+    /* Live estimate as bottom sheet on mobile */
     .live-estimate-card {
         width: calc(100% - 24px);
         right: 12px;
@@ -1515,6 +1501,16 @@ body::before {
         bottom: 12px;
         max-width: 320px;
     }
+
+    /* Sidebar drawer touch-friendly */
+    .history-drawer {
+        width: 85vw;
+        max-width: 320px;
+        padding-top: env(safe-area-inset-top);
+    }
+    .drawer-header { padding: 18px 16px 14px; }
+    .history-item { padding: 12px 14px; min-height: 44px; }
+    .new-chat-btn { padding: 13px 16px; min-height: 44px; }
 }
 
 @media (max-width: 480px) {
@@ -1522,80 +1518,90 @@ body::before {
     .chat-topbar { padding: 10px 12px; }
     .chat-container { padding: 10px 10px; }
     .input-area { padding: 8px 10px 10px; }
-
-    /* Message bubbles */
-    .message {
-        max-width: 92% !important;
-    }
-
-    .message-content {
-        font-size: 0.85rem;
-        padding: 10px 12px;
-    }
+    .message { max-width: 92% !important; }
+    .bubble { padding: 10px 12px; font-size: 0.86rem; }
 
     /* Quick reply chips */
-    .quick-replies {
-        gap: 6px;
-        padding: 0 10px;
-    }
-
-    .quick-reply-btn {
-        padding: 7px 12px;
-        font-size: 0.78rem;
-    }
+    .quick-replies { gap: 6px; padding: 0 10px; }
+    .quick-reply-btn { padding: 7px 12px; font-size: 0.78rem; }
 
     /* About modal */
-    .modal-content {
-        width: 95%;
-        padding: 22px 18px;
-        border-radius: 16px;
-    }
-
-    .modal-header h2 {
-        font-size: 1.2rem;
-    }
-
-    .modal-body p {
-        font-size: 0.85rem;
-    }
+    .modal-content { width: 95%; padding: 22px 18px; border-radius: 16px; }
+    .modal-header h2 { font-size: 1.2rem; }
+    .modal-body p { font-size: 0.85rem; }
 
     /* History drawer */
-    .history-drawer {
-        width: 85vw;
-        max-width: 300px;
+    .history-drawer { width: 85vw; max-width: 300px; }
+}
+
+/* =========================================
+   MOBILE RESPONSIVE — LOGIN PAGE
+========================================== */
+@media (max-width: 480px) {
+    .login-body {
+        height: 100vh;
+        height: 100dvh;
+        overflow-y: auto;
+        align-items: flex-start;
+        padding-top: max(40px, env(safe-area-inset-top));
+        padding-bottom: max(30px, env(safe-area-inset-bottom));
     }
+    .login-container { max-width: 100%; padding: 0 16px; }
+    .login-glass-card { padding: 28px 20px; border-radius: 24px; }
+    .login-header { margin-bottom: 24px; }
+    .login-header h1 { font-size: 1.7rem; }
+    .login-header p { font-size: 0.85rem; }
+    .login-logo { width: 50px; height: 50px; margin-bottom: 10px; }
+    .login-form .input-group { margin-bottom: 14px; }
+    /* 16px minimum to prevent iOS auto-zoom */
+    .login-form .input-group input { padding: 12px 16px; font-size: 16px; }
+    .login-form .input-group label { font-size: 0.8rem; margin-bottom: 6px; }
+    .login-btn { padding: 13px; font-size: 0.95rem; min-height: 48px; }
+    .divider { margin: 18px 0; font-size: 0.8rem; }
+    .google-btn { padding: 12px; font-size: 0.9rem; min-height: 48px; }
+    .signup-prompt { margin-top: 20px; font-size: 0.82rem; }
+    .forgot-password { margin-bottom: 18px; }
 }
 
 /* Extra small phones (iPhone SE, Galaxy Fold etc.) */
 @media (max-width: 360px) {
-    .login-glass-card {
-        padding: 22px 16px;
-        border-radius: 20px;
-    }
+    .login-glass-card { padding: 22px 16px; border-radius: 20px; }
+    .login-header h1 { font-size: 1.5rem; }
+    .login-form .input-group input { padding: 10px 14px; font-size: 16px; }
+    .login-btn { padding: 11px; font-size: 0.9rem; }
+    .google-btn { padding: 10px; font-size: 0.85rem; }
 
-    .login-header h1 {
-        font-size: 1.5rem;
-    }
-
-    .login-form .input-group input {
-        padding: 10px 14px;
-        font-size: 0.88rem;
-    }
-
-    .login-btn {
-        padding: 11px;
-        font-size: 0.9rem;
-    }
-
-    .google-btn {
-        padding: 10px;
-        font-size: 0.85rem;
-    }
+    .topbar-name { font-size: 0.88rem; }
+    .bubble { font-size: 0.84rem; padding: 9px 12px; }
+    .quick-reply-btn { padding: 6px 10px; font-size: 0.75rem; }
 }
 
-/* Fix iOS Safari 100vh issue and ensure touch targets are large enough */
+/* =========================================
+   iOS Safari / Mobile Browser Fixes
+========================================== */
 @supports (-webkit-touch-callout: none) {
     .login-body {
         min-height: -webkit-fill-available;
     }
+    /* Prevent elastic bounce on chat */
+    .app-shell {
+        height: -webkit-fill-available;
+    }
 }
+
+/* Prevent pull-to-refresh on chatbot body */
+body:not(.login-body) {
+    overscroll-behavior-y: contain;
+}
+
+/* Ensure all interactive elements are at least 44px (WCAG touch target) */
+@media (pointer: coarse) {
+    .icon-btn, .logout-btn, .locate-btn, #send-button,
+    .quick-reply-btn, .new-chat-btn, .history-item,
+    .delete-btn, .autocomplete-item {
+        min-height: 44px;
+    }
+    .delete-btn { opacity: 0.6; padding: 8px; }
+    .autocomplete-item { padding: 13px 15px; }
+}
+

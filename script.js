@@ -1166,4 +1166,65 @@ function normLoc(s) { return (s || '').toLowerCase().replace(/[^a-z0-9]/g, '').t
             '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
         }[tag]));
     }
+
+    // =============================================
+    // MOBILE OPTIMIZATIONS
+    // =============================================
+
+    // 1. VisualViewport resize — keep input visible above keyboard
+    if (window.visualViewport) {
+        const inputArea = document.querySelector('.input-area');
+        window.visualViewport.addEventListener('resize', () => {
+            if (!inputArea) return;
+            const keyboardHeight = window.innerHeight - window.visualViewport.height;
+            if (keyboardHeight > 100) {
+                // Keyboard is open
+                inputArea.style.paddingBottom = `${Math.max(8, keyboardHeight - (window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop))}px`;
+                scrollToBottom();
+            } else {
+                inputArea.style.paddingBottom = '';
+            }
+        });
+    }
+
+    // 2. Swipe-to-close sidebar (touch gesture)
+    (function initSwipeToClose() {
+        const drawer = document.getElementById('history-drawer');
+        if (!drawer) return;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isSwiping = false;
+
+        drawer.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            isSwiping = false;
+        }, { passive: true });
+
+        drawer.addEventListener('touchmove', (e) => {
+            const dx = e.touches[0].clientX - touchStartX;
+            const dy = Math.abs(e.touches[0].clientY - touchStartY);
+            // Only horizontal swipe left
+            if (dx < -30 && dy < 50) {
+                isSwiping = true;
+            }
+        }, { passive: true });
+
+        drawer.addEventListener('touchend', () => {
+            if (isSwiping) closeSidebar();
+            isSwiping = false;
+        }, { passive: true });
+    })();
+
+    // 3. Auto-scroll to input on focus (mobile keyboards)
+    if (messageInput) {
+        messageInput.addEventListener('focus', () => {
+            if (window.innerWidth <= 900) {
+                setTimeout(() => {
+                    messageInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    scrollToBottom();
+                }, 350);
+            }
+        });
+    }
 });
