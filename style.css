@@ -1,9 +1,9 @@
 /* ============================================================
-   TAXIBOT — STITCH NEON NOCTURNE
-   Matching the Stitch-generated design exactly:
-   · Deep black body with blue edge-glow
+   TAXIBOT — MIDNIGHT GLASS
+   Black glassmorphism design system:
+   · Deep black body with subtle golden edge-glow
    · Centered floating app card (not full-screen)
-   · Vibrant purple/violet chat panel
+   · Black glass chat panel with yellow accent
    · Dark map panel with subtle overlay
    · Yellow #f7de33 primary accent
    ============================================================ */
@@ -11,29 +11,29 @@
 /* ── TOKENS ─────────────────────────────────────────────── */
 :root {
     --primary:          #f7de33;
-    --primary-dim:      rgba(247, 222, 51, 0.15);
+    --primary-dim:      rgba(247, 222, 51, 0.12);
     --primary-glow:     rgba(247, 222, 51, 0.35);
     --pink:             #FF3CAC;
-    --purple:           #784BA0;
+    --accent-red:       #ff4d4d;
 
-    /* Chat panel purple theme */
-    --chat-bg:          #3d2070;
-    --chat-bg-dark:     #2a1550;
-    --chat-header-bg:   rgba(40, 20, 85, 0.95);
+    /* Chat panel — black glass theme */
+    --chat-bg:          #0d0d14;
+    --chat-bg-dark:     #0a0a10;
+    --chat-header-bg:   rgba(10, 10, 16, 0.92);
 
     /* Left nav */
-    --nav-bg:           #1e1040;
+    --nav-bg:           #0a0a10;
     --nav-width:        200px;
 
     /* Surfaces / Glass */
-    --glass-border:     rgba(255, 255, 255, 0.15);
-    --glass-bg:         rgba(255, 255, 255, 0.08);
-    --glass-bg-hover:   rgba(255, 255, 255, 0.15);
+    --glass-border:     rgba(255, 255, 255, 0.10);
+    --glass-bg:         rgba(255, 255, 255, 0.06);
+    --glass-bg-hover:   rgba(255, 255, 255, 0.12);
 
     /* Text */
-    --text:             #ffffff;
-    --text-muted:       rgba(255, 255, 255, 0.60);
-    --text-faint:       rgba(255, 255, 255, 0.35);
+    --text:             #f0f0f5;
+    --text-muted:       rgba(255, 255, 255, 0.55);
+    --text-faint:       rgba(255, 255, 255, 0.30);
 
     /* Type */
     --font-display:     'Plus Jakarta Sans', sans-serif;
@@ -50,7 +50,7 @@
 body {
     font-family: var(--font-body);
     color: var(--text);
-    background: #080810;
+    background: #050508;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -59,15 +59,15 @@ body {
     overflow: hidden;
 }
 
-/* Blue-edge ambient glow (matching Stitch screenshot exactly) */
+/* Golden-edge ambient glow — black glassmorphism */
 body::before {
     content: '';
     position: fixed;
     inset: 0;
     background:
-        radial-gradient(ellipse 60% 40% at 0% 100%, rgba(30, 60, 180, 0.55) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(30, 60, 180, 0.55) 0%, transparent 60%),
-        radial-gradient(ellipse 80% 30% at 50% 100%, rgba(20, 40, 140, 0.4) 0%, transparent 60%);
+        radial-gradient(ellipse 50% 35% at 0% 100%, rgba(247, 222, 51, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 35% at 100% 100%, rgba(247, 222, 51, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 25% at 50% 0%, rgba(247, 222, 51, 0.04) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
 }
@@ -83,11 +83,11 @@ body::before {
     border-radius: 20px;
     overflow: hidden;
     display: flex;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     box-shadow:
-        0 0 0 1px rgba(255,255,255,0.04),
-        0 40px 80px rgba(0,0,0,0.8),
-        0 0 60px rgba(20,40,160,0.3);
+        0 0 0 1px rgba(255,255,255,0.03),
+        0 40px 80px rgba(0,0,0,0.9),
+        0 0 40px rgba(247,222,51,0.04);
 }
 
 /* ── HISTORY DRAWER (hamburger slide-in) ────────────────── */
@@ -112,7 +112,7 @@ body::before {
     top: 0; left: 0;
     width: 300px;
     height: 100vh;
-    background: rgba(20, 8, 48, 0.97);
+    background: rgba(8, 8, 14, 0.97);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
     border-right: 1px solid var(--glass-border);
@@ -237,7 +237,7 @@ body::before {
     transition: all 0.2s;
 }
 .history-item:hover .delete-btn { opacity: 1; }
-.delete-btn:hover { color: var(--pink); background: rgba(255,60,172,0.15); }
+.delete-btn:hover { color: var(--accent-red); background: rgba(255,77,77,0.12); }
 
 /* ── ICON BUTTON ────────────────────────────────────────── */
 .icon-btn {
@@ -426,17 +426,17 @@ body::before {
 }
 
 .logout-btn:hover {
-    background: rgba(255, 60, 172, 0.15);
-    color: var(--pink);
+    background: rgba(255, 77, 77, 0.12);
+    color: var(--accent-red);
 }
 
-/* ── CHAT PANEL — vivid purple/violet ───────────────────── */
+/* ── CHAT PANEL — black glass ───────────────────────────── */
 .chat-panel {
     flex: 0 0 460px;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, var(--chat-bg) 0%, #2e1660 100%);
-    border-right: 1px solid rgba(255,255,255,0.1);
+    background: linear-gradient(180deg, #0e0e16 0%, #08080e 100%);
+    border-right: 1px solid rgba(255,255,255,0.06);
     min-width: 0;
     position: relative;
 }
@@ -447,7 +447,7 @@ body::before {
     align-items: center;
     justify-content: space-between;
     padding: 14px 18px;
-    background: rgba(25, 12, 60, 0.7);
+    background: rgba(10, 10, 16, 0.85);
     border-bottom: 1px solid rgba(255,255,255,0.1);
     flex-shrink: 0;
     gap: 12px;
@@ -538,10 +538,10 @@ body::before {
     font-weight: 500;
     border-bottom-right-radius: 4px;
 }
-/* AI bubble — darker purple glass */
+/* AI bubble — dark glass */
 .message.ai .bubble {
-    background: rgba(20, 10, 50, 0.55);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255,255,255,0.08);
     color: var(--text);
     border-bottom-left-radius: 4px;
     backdrop-filter: blur(10px);
@@ -601,7 +601,7 @@ body::before {
 
 /* ── COMPARISON CARD ────────────────────────────────────── */
 .comparison-card {
-    background: rgba(10, 5, 30, 0.65);
+    background: rgba(10, 10, 16, 0.75);
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: 18px;
     margin-top: 10px;
@@ -664,7 +664,7 @@ body::before {
 .input-area {
     padding: 12px 14px 14px;
     flex-shrink: 0;
-    background: rgba(20, 10, 55, 0.5);
+    background: rgba(8, 8, 14, 0.6);
     border-top: 1px solid rgba(255,255,255,0.08);
 }
 
@@ -708,7 +708,7 @@ body::before {
     position: absolute;
     bottom: calc(100% + 8px);
     left: 0; right: 0;
-    background: rgba(14, 8, 40, 0.98);
+    background: rgba(10, 10, 16, 0.98);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(255,255,255,0.15);
@@ -824,7 +824,7 @@ body::before {
     position: relative;
     min-width: 0;
     overflow: hidden;
-    background: #1a1a2e;
+    background: #0a0a12;
 }
 #map { width: 100%; height: 100%; }
 
@@ -833,7 +833,7 @@ body::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(15, 8, 40, 0.18);
+    background: rgba(5, 5, 10, 0.15);
     pointer-events: none;
     z-index: 1;
 }
@@ -846,7 +846,7 @@ body::before {
     align-items: center;
     justify-content: center;
     gap: 18px;
-    background: rgba(8, 5, 20, 0.82);
+    background: rgba(5, 5, 10, 0.85);
     backdrop-filter: blur(8px);
     z-index: 10;
 }
@@ -911,7 +911,7 @@ body::before {
     right: 16px;
     z-index: 5;
     width: 240px;
-    background: rgba(18, 15, 35, 0.92);
+    background: rgba(10, 10, 16, 0.92);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255,255,255,0.10);
@@ -981,7 +981,7 @@ body::before {
     border: 2px solid currentColor;
 }
 .est-dot-pickup { color: var(--primary); background: var(--primary); }
-.est-dot-drop   { color: #FF3CAC;        background: #FF3CAC; }
+.est-dot-drop   { color: #ff4d4d;        background: #ff4d4d; }
 .est-route-text {
     font-family: var(--font-display);
     font-size: 0.78rem;
@@ -1036,7 +1036,7 @@ body::before {
 }
 .map-ctrl-btn {
     width: 36px; height: 36px;
-    background: rgba(18, 15, 35, 0.92);
+    background: rgba(10, 10, 16, 0.92);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.12);
     color: var(--text);
@@ -1051,7 +1051,7 @@ body::before {
 }
 .map-ctrl-btn:first-child { border-bottom: none; border-radius: 12px 12px 0 0; }
 .map-ctrl-btn:last-child  { border-top: none;   border-radius: 0 0 12px 12px; }
-.map-ctrl-btn:hover { background: rgba(40, 30, 70, 0.95); }
+.map-ctrl-btn:hover { background: rgba(30, 30, 40, 0.95); }
 
 .map-compass-btn {
     position: absolute;
@@ -1140,7 +1140,7 @@ body::before {
 }
 
 .modal-content {
-    background: var(--nav-bg);
+    background: #0c0c12;
     border: 1px solid var(--glass-border);
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     border-radius: 20px;
@@ -1217,10 +1217,10 @@ body::before {
    LOGIN PAGE (Neon Nocturne)
 ========================================== */
 .login-body {
-    background-color: #0e0e13;
+    background-color: #050508;
     background-image: 
-        radial-gradient(circle at top right, rgba(255, 60, 172, 0.12) 0%, transparent 50%),
-        radial-gradient(circle at bottom left, rgba(120, 75, 160, 0.12) 0%, transparent 50%);
+        radial-gradient(circle at top right, rgba(247, 222, 51, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at bottom left, rgba(247, 222, 51, 0.04) 0%, transparent 50%);
     display: flex;
     align-items: center;
     justify-content: center;

@@ -4,12 +4,7 @@ let googleMapsPolyline = null;
 // =============================================
 // API KEYS
 // =============================================
-const GEMINI_KEY = 'AIzaSyAfr4TClW-6pvXLM5cprVWbVfoNkdaxhZE';
-const GEMINI_MODELS = [
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-    'gemini-1.5-pro'
-];
+// Gemini Keys are now secured in the Python Backend (app.py)
 
 window.taxiBotCore = {
     redrawCurrentRoute: null
@@ -184,66 +179,62 @@ async function askGemini(userText, session) {
     const historyLines = session.messages.slice(-10, -1).map(m => `${m.sender === 'ai' ? 'TaxiBot' : 'User'}: ${m.text}`);
     const historyBlock = historyLines.length > 0 ? `\n\nRECENT CHAT HISTORY:\n${historyLines.join('\n')}` : '';
 
-    const systemPrompt = `You are TaxiBot 🚕, an AI-powered taxi fare estimator for India. You help users compare Uber, Ola & Rapido cab fares.
+    const systemPrompt = `You are TaxiBot 🚕, an advanced AI-powered taxi fare estimator for India. You intelligently help users compare Uber, Ola & Rapido cab fares.
 
 STRICT RULES (NEVER break these):
 1. You ONLY discuss topics related to: taxi, cab, auto-rickshaw, bike taxi, rides, routes, locations, travel, fare, surge pricing, transportation in India.
 2. If ANY message is off-topic (coding help, recipes, general knowledge, sports, politics, math, etc.) — respond with intent "off_topic" and a polite decline.
-3. You support English, Hindi, and Hinglish naturally.
-4. ALWAYS respond with ONLY valid JSON — no markdown fences, no explanation outside the JSON.
-5. Be warm, friendly, use emojis and **bold markdown** in message field.
+3. You support English, Hindi, and Hinglish naturally. Be highly conversational, witty, and contextual.
+4. ALWAYS respond with ONLY valid JSON — no markdown fences around JSON, no explanation outside the JSON.
+5. Provide helpful, conversational responses using emojis and **bold markdown** within the message field. Don't be robotic.
 
-CURRENT CONVERSATION STATE: ${stateContext[session.state] || 'General chat.'}${historyBlock}
+CURRENT CONVERSATION STATE: \${stateContext[session.state] || 'General chat.'}\${historyBlock}
 
 Analyze the user message and respond with ONLY this JSON object:
 {
-  "intent": "<one of the intents below>",
-  "message": "<your response to show the user, use **bold** and emojis, newlines as \\n>",
-  "pickup": "<extracted pickup location string, or null>",
-  "drop": "<extracted drop/destination location string, or null>"
+  "intent": "<intent_type>",
+  "message": "<your conversational response>",
+  "pickup": "<extracted pickup location or null>",
+  "drop": "<extracted destination location or null>"
 }
 
-Intent options:
-- "greeting"        → hi, hello, hey, namaste, good morning, hii, etc.
-- "route_both"      → user gave BOTH pickup AND drop in one message ("Delhi to Agra", "LPU se airport", "from X to Y")
-- "location_only"   → user gave a single location as pickup or drop
-- "help"            → asking how to use TaxiBot or what it can do
-- "chitchat"        → cab/travel/transportation related questions, surge pricing, tips, jokes about cabs
-- "off_topic"       → ANYTHING unrelated to taxis/travel/routes. Be firm but gentle.
-- "acknowledge"     → ok, sure, yes, got it, proceed, continue, etc.
+Intent Contexts & Rules:
+- "greeting": Respond warmly to hello/hi/namaste.
+- "route_both": Extract both locations if the user provides pickup and drop in one message (e.g. "I want to go from X to Y").
+- "location_only": Extract the location if the user provides a single location. Do not hallucinate the other location.
+- "help": Guide the user concisely on how to use TaxiBot.
+- "chitchat": Engage in natural conversation regarding cabs, surge pricing, travel, etc. Make it fun and helpful.
+- "off_topic": Firmly but politely steer the conversation back to taxis and travel.
+- "acknowledge": Acknowledge commands (e.g. "ok", "proceed", "yes").
 
-For "route_both": populate BOTH pickup AND drop with extracted locations.
-For "location_only": populate pickup with the single location. Drop stays null.
-For all other intents: pickup and drop are null.
-
-Important: For "route_both" or "location_only", also include a natural confirmation message in the message field.`;
+CRITICAL:
+- ONLY populate 'pickup' and 'drop' if you are highly confident the user is providing a location intended for a ride.
+- If intent is "route_both", both pickup and drop MUST be populated.
+- If intent is "location_only", ONLY populate pickup. Drop must be null.
+- For all other intents, both pickup and drop must be null.
+- In your "message", ALWAYS confirm the details extracted so the user feels understood.`;
 
     try {
-        let resp = null;
-        for (const model of GEMINI_MODELS) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEY}`;
-            try {
-                resp = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        systemInstruction: { parts: [{ text: systemPrompt }] },
-                        contents: [{ role: 'user', parts: [{ text: userText }] }],
-                        generationConfig: { temperature: 0.75, maxOutputTokens: 512 }
-                    })
-                });
-                if (resp.ok) {
-                    console.log(`Successfully used model: ${model}`);
-                    break;
-                }
-                console.warn(`Gemini API error with model ${model}: HTTP ${resp.status}`);
-            } catch (err) {
-                console.warn(`Network error with model ${model}:`, err.message);
-            }
-        }
+        // Use relative path for Vercel, fallback to localhost Flask for local dev
+        const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+        const url = isLocal ? 'http://127.0.0.1:5000/api/chat' : '/api/chat';
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                systemPrompt: systemPrompt,
+                userText: userText
+            })
+        });
 
-        if (!resp || !resp.ok) throw new Error(`All Gemini models failed to respond.`);
+        if (!resp.ok) {
+            console.warn(`Backend API error: HTTP ${resp.status}`);
+            throw new Error(`Backend failed to respond.`);
+        }
+        
         const data = await resp.json();
+        if (data.error) throw new Error(data.error);
+
         const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
         // Strip any accidental markdown code fences
         const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
