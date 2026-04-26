@@ -216,7 +216,7 @@ CRITICAL:
 
     try {
         // Use relative path for Vercel, fallback to localhost Flask for local dev
-        const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+        const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' || window.location.protocol === 'file:';
         const url = isLocal ? 'http://127.0.0.1:5000/api/chat' : '/api/chat';
         const resp = await fetch(url, {
             method: 'POST',
