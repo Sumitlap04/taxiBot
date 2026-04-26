@@ -7,13 +7,10 @@ import urllib.error
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 GEMINI_MODELS = [
-    "gemini-2.5-flash",
     "gemini-2.5-pro",
-    "gemini-2.0-flash",
+    "gemini-2.5-flash",
     "gemini-2.0-pro-exp-02-05",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
-    "gemini-1.0-pro"
+    "gemini-2.0-flash"
 ]
 
 
@@ -65,7 +62,7 @@ def handler(request):
         payload = json.dumps({
             "systemInstruction": {"parts": [{"text": system_prompt}]},
             "contents": [{"role": "user", "parts": [{"text": user_text}]}],
-            "generationConfig": {"temperature": 0.75, "maxOutputTokens": 512},
+            "generationConfig": {"temperature": 0.75, "maxOutputTokens": 4096},
         }).encode("utf-8")
 
         req = urllib.request.Request(
